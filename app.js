@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 
-// Note: The filename must be 'userRoutes.js'
 const userRoutes = require('./routes/userRoutes.js');
 const productRoutes = require('./routes/productRoutes.js');
 const orderRoutes = require('./routes/orderRoutes.js');
@@ -10,7 +9,21 @@ const paymentRoutes = require('./routes/paymentRoutes.js');
 const app = express();
 
 
-app.use(cors());
+// --- CORS Setup (Corrected) ---
+// Remove your custom CORS middleware
+const allowedOrigins = [
+  process.env.FRONTEND_URL,  // deployed frontend
+  'http://localhost:5173'    // local dev
+];
+
+// Use the official 'cors' package with a specific origin list
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json());
   
 app.use('/api/users', userRoutes);

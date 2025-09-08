@@ -63,6 +63,7 @@ app.use('/api/payments', paymentRoutes);
 // --- Health Check Endpoint ---
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
+  console.log("MY IKKAON SHIT")
 });
 
 // --- Error Handling Middleware ---

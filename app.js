@@ -12,12 +12,17 @@ const app = express();
 // If Render is behind a proxy
 app.set('trust proxy', true);
 
+// Allowed frontend origins
+const allowedOrigins = [
+  process.env.FRONTEND_URL
+];
+
 // ------------------------
-// CORS CONFIGURATION START
+// CORS CONFIGURATION
 // ------------------------
 app.use(cors({
   origin: function(origin, callback){
-    if(!origin) return callback(null, true); // allow non-browser tools like Postman
+    if(!origin) return callback(null, true); // allow tools like Postman
     if(allowedOrigins.indexOf(origin) === -1){
       const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
       return callback(new Error(msg), false);
@@ -29,16 +34,12 @@ app.use(cors({
 }));
 
 // Handle OPTIONS preflight for all routes
-app.options('*', cors({
-    origin: process.env.FRONTEND_URL,
-    methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-    credentials: true
-}));
-// ----------------------
-// CORS CONFIGURATION END
-// ----------------------
+app.options('*', cors());
 
-app.use(express.json());  // JSON parsing middleware
+// ----------------------
+// JSON PARSING
+// ----------------------
+app.use(express.json());
 
 // ----------------------
 // ROUTES
@@ -53,7 +54,7 @@ app.use('/api/payments', paymentRoutes);
 // ----------------------
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).json({ message: 'Something broke!', error: err.message });
 });
 
 // ----------------------

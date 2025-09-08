@@ -1,0 +1,108 @@
+=== Preorder System Backend Checklist ===
+
+1. User Authentication
+   [x] Verify Firebase token on protected routes
+   [x] Distinguish between regular users and admin (role field)
+
+2. User Management
+   [x] Create user in MySQL when first login via Google/Facebook
+   [x] Fetch user profile
+   [ ] Update user profile (optional)
+
+3. Products
+   [ ] Add product (admin)
+   [ ] Update product (admin)
+   [ ] Delete product (admin)
+   [x] Fetch all products
+   [x] Fetch product by ID (optional)
+
+4. Orders
+   [x] Create order (deduct stock)
+   [x] Get all orders for logged-in user
+   [x] Get order details with items
+   [x] Update order status:
+       [x] Pending
+       [x] Paid (admin only)
+       [x] Cancelled (user can cancel own orders)
+   [x] Restore stock on cancelled orders
+
+5. Payments
+   [ ] Create payment record linked to order
+   [ ] Track payment method (Cash, GCash)
+   [ ] Track payment status (Pending, Completed, Failed)
+   [ ] Optional: Verify GCash payment proof
+
+6. Database & Tables
+   [x] users
+   [x] products
+   [x] orders
+   [x] order_items
+   [x] payment_methods
+
+7. Routes & Controllers
+   [x] userRoutes & userController
+   [x] productRoutes & productController
+   [x] orderRoutes & orderController
+   [x] orderDetailRoutes & orderDetailController
+   [ ] paymentRoutes & paymentController
+
+8. Error Handling & Security
+   [x] Handle missing or invalid tokens
+   [x] Handle invalid input data
+   [x] Handle DB errors (try/catch)
+   [ ] Optional: Rate limiting, CORS, security headers
+
+9. Testing
+   [ ] Test all endpoints with Postman/Insomnia
+   [ ] Test with invalid token
+   [ ] Test stock limits
+   [ ] Test order cancellation and admin status update
+   [ ] Test payment flow (cash/GCash)
+
+10. Deployment Prep
+   [x] Environment variables set (.env)
+   [x] Database credentials secure
+   [x] Node.js version compatible
+   [x] Nodemon or PM2 configured
+
+
+=== Backend Next Tasks Priority List ===
+
+1. Payments (High Priority)
+   - [ ] Implement paymentController
+   - [ ] Implement paymentRoutes
+   - [ ] Allow Cash and GCash as methods
+   - [ ] Track payment status (Pending, Completed, Failed)
+   - [ ] Optional: Add proof verification for GCash (manual for now)
+   
+2. Product Management (Medium Priority)
+   - [ ] Add product (admin only)
+   - [ ] Update product (admin only)
+   - [ ] Delete product (admin only)
+   - [ ] Optional: Categorize products (Regular Pastil, Pastil/Wegg, Pastil Hotdog)
+   
+3. Order Details (Medium Priority)
+   - [ ] orderDetailController & orderDetailRoutes (if separate from orderController)
+   - [ ] Include item details in order response
+
+4. User Management (Low-Medium Priority)
+   - [ ] Update user profile (optional)
+   - [ ] Admin role management (optional)
+   
+5. Testing & Validation (High Priority)
+   - [ ] Test order creation with stock deduction
+   - [ ] Test order status updates (user vs admin permissions)
+   - [ ] Test payment creation and status updates
+   - [ ] Test Firebase token verification on all protected routes
+   - [ ] Test edge cases: invalid product, insufficient stock, invalid token
+
+6. Deployment Prep (Low Priority)
+   - [ ] Finalize environment variables (.env)
+   - [ ] Secure database credentials
+   - [ ] Verify Node.js version and dependencies
+   - [ ] Prepare PM2/Nodemon for production
+
+7. Optional Enhancements (Future)
+   - [ ] Integrate GCash API or QR verification
+   - [ ] Add email/SMS notifications for order updates
+   - [ ] Add analytics or admin dashboard

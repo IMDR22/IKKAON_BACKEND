@@ -16,9 +16,16 @@ app.set('trust proxy', true);
 // CORS CONFIGURATION START
 // ------------------------
 app.use(cors({
-    origin: process.env.FRONTEND_URL,  // Your frontend URL
-    methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-    credentials: true                 // needed if sending cookies or auth headers
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // allow non-browser tools like Postman
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS']
 }));
 
 // Handle OPTIONS preflight for all routes

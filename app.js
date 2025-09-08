@@ -9,23 +9,32 @@ const paymentRoutes = require('./routes/paymentRoutes.js');
 
 const app = express();
 
-// If Render is behind a proxy
+// Trust proxy for Render
 app.set('trust proxy', true);
 
 // CORS configuration
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // deployed frontend
+  'http://localhost:5173'   // local dev (optional)
+];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL, 
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed: ' + origin));
+    }
+  },
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
 // Handle OPTIONS preflight
-app.options('*', cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
+app.options('*', cors());
 
+// JSON parsing
 app.use(express.json());
 
 // Routes
@@ -36,8 +45,8 @@ app.use('/api/payments', paymentRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+  console.error(err.stack);
+  res.status(500).json({ message: err.message });
 });
 
 // Start server

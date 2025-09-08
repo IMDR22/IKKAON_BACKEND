@@ -9,58 +9,45 @@ const paymentRoutes = require('./routes/paymentRoutes.js');
 
 const app = express();
 
-// If Render is behind a proxy
+// If behind Render's proxy
 app.set('trust proxy', true);
 
-// Allowed frontend origins
+// Allowed origins
 const allowedOrigins = [
   process.env.FRONTEND_URL
 ];
 
-// ------------------------
-// CORS CONFIGURATION
-// ------------------------
-app.use(cors({
-  origin: function(origin, callback){
-    if(!origin) return callback(null, true); // allow tools like Postman
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS']
-}));
+// CORS middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204); // preflight request
+  }
+  next();
+});
 
-// Handle OPTIONS preflight for all routes
-app.options('*', cors());
-
-// ----------------------
-// JSON PARSING
-// ----------------------
 app.use(express.json());
 
-// ----------------------
-// ROUTES
-// ----------------------
+// Routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 
-// ----------------------
-// ERROR HANDLER
-// ----------------------
+// Error handling
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something broke!', error: err.message });
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
-// ----------------------
-// START SERVER
-// ----------------------
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

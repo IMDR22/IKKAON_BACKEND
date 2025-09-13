@@ -10,7 +10,7 @@ const app = express();
 
 // ✅ Configure CORS properly
 app.use(cors({
-  origin: "http://localhost:5173", // 👈 your React app URL
+  origin: "https://ikkaon-frontend.onrender.com", 
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
 }));

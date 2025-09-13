@@ -8,16 +8,15 @@ const paymentRoutes = require('./routes/paymentRoutes.js');
 
 const app = express();
 
-// ✅ Allowed origins (local + future deployed frontend)
+// ✅ Allowed origins (local + deployed frontend)
 const allowedOrigins = [
-  "http://localhost:5173",                 // local React dev
-  "https://ikkaon-frontend.onrender.com",  // deployed frontend (update if needed)
+  "http://localhost:5173",                 
+  "https://ikkaon-frontend.onrender.com"
 ];
 
 // ✅ Configure CORS
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman, curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -26,7 +25,10 @@ app.use(cors({
   },
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
-}));
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // ✅ handle preflight everywhere
 
 app.use(express.json());
 
@@ -39,6 +41,9 @@ app.use('/api/payments', paymentRoutes);
 // ✅ Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  if (err.message && err.message.startsWith("Not allowed by CORS")) {
+    return res.status(403).json({ error: err.message });
+  }
   res.status(500).send('Something broke!');
 });
 

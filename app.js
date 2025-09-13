@@ -8,57 +8,45 @@ const paymentRoutes = require('./routes/paymentRoutes.js');
 
 const app = express();
 
-// ✅ Allowed origins (local + deployed frontend)
+// ✅ Allowed frontend origins
 const allowedOrigins = [
   "http://localhost:5173",                 
   "https://ikkaon-frontend.onrender.com"
 ];
 
-// ✅ Configure CORS
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS: " + origin));
-    }
-  },
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
-};
-
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // ✅ handle preflight everywhere
+// ✅ Dynamic CORS middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  }
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // Handle preflight
+  }
+  next();
+});
 
 app.use(express.json());
 
-// ✅ API routes
+// ✅ API routes (verifyToken can be used inside these routes)
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 
-app.get("/test", (req, res) => {
-  res.json({ message: "CORS is working 🚀", origin: req.headers.origin });
-});
-
-app.get("/ping", (req, res) => {
-  res.send("pong 🏓 Backend is alive!");
-});
-
-
+// ✅ Test routes
+app.get("/ping", (req, res) => res.send("pong 🏓 Backend is alive!"));
+app.get("/test", (req, res) => res.json({ message: "CORS is working 🚀", origin: req.headers.origin }));
 
 // ✅ Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  if (err.message && err.message.startsWith("Not allowed by CORS")) {
-    return res.status(403).json({ error: err.message });
-  }
   res.status(500).send('Something broke!');
 });
 
 // ✅ Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

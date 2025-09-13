@@ -42,6 +42,11 @@ app.get("/test", (req, res) => {
   res.json({ message: "CORS is working 🚀", origin: req.headers.origin });
 });
 
+app.get("/ping", (req, res) => {
+  res.send("pong 🏓 Backend is alive!");
+});
+
+
 
 // ✅ Global error handler
 app.use((err, req, res, next) => {

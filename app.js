@@ -10,28 +10,34 @@ const app = express();
 
 // ✅ Allowed frontend origins
 const allowedOrigins = [
-  "http://localhost:5173",                 
-  "https://ikkaon-frontend.onrender.com"
+  "http://localhost:5173",                 // local React dev
+  "https://ikkaon-frontend.onrender.com"   // deployed frontend
 ];
 
 // ✅ Dynamic CORS middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
+
+  // Allow requests from allowed origins or requests with no origin (Postman, curl)
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   }
+
+  // Handle preflight requests
   if (req.method === "OPTIONS") {
-    return res.sendStatus(200); // Handle preflight
+    return res.sendStatus(200);
   }
+
   next();
 });
 
+// ✅ Parse JSON requests
 app.use(express.json());
 
-// ✅ API routes (verifyToken can be used inside these routes)
+// ✅ API routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);

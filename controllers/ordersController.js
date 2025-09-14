@@ -19,7 +19,7 @@ const createOrder = async (req, res) => {
   
       // Get MySQL user_id from firebase_uid
       const [userRows] = await connection.query(
-        'SELECT user_id FROM users WHERE firebase_uid = ?',
+        'SELECT userid FROM users WHERE firebase_uid = ?',
         [uid]
       );
   
@@ -62,7 +62,7 @@ const createOrder = async (req, res) => {
   
       // Insert order
       const [orderResult] = await connection.query(
-        'INSERT INTO orders (user_id, total_amount) VALUES (?, ?)',
+        'INSERT INTO orders (userid, total_amount) VALUES (?, ?)',
         [user_id, totalAmount]
       );
   
@@ -112,7 +112,7 @@ const getOrders = async (req, res) => {
 
   try {
     const [userRows] = await pool.query(
-      'SELECT user_id FROM users WHERE firebase_uid = ?',
+      'SELECT userid FROM users WHERE firebase_uid = ?',
       [uid]
     );
 
@@ -123,7 +123,7 @@ const getOrders = async (req, res) => {
     const user_id = userRows[0].user_id;
 
     const [orders] = await pool.query(
-      'SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC',
+      'SELECT * FROM orders WHERE userid = ? ORDER BY order_date DESC',
       [user_id]
     );
 
@@ -142,7 +142,7 @@ const getOrderDetails = async (req, res) => {
     try {
       // Get user_id from firebase_uid
       const [userRows] = await pool.query(
-        'SELECT user_id FROM users WHERE firebase_uid = ?',
+        'SELECT userid FROM users WHERE firebase_uid = ?',
         [uid]
       );
   
